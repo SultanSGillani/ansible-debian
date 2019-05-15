@@ -58,6 +58,8 @@ ONBUILD  RUN  \
 RUN mkdir -p /etc/ansible
 RUN printf "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
 
+COPY ansible-playbook-wrapper /usr/local/bin/
+
 RUN useradd -ms /bin/bash ansible
 RUN printf "ansible ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
@@ -70,5 +72,5 @@ ENV TERM xterm
 ENV ANSIBLE_CONFIG /etc/ansible/roles/roles_to_test/tests/ansible.cfg
 
 VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
-# default command: display Ansible version
-CMD [ "ansible-playbook", "--version" ]
+
+CMD ["bash"]
