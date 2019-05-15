@@ -58,8 +58,6 @@ ONBUILD  RUN  \
 RUN mkdir -p /etc/ansible
 RUN printf "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
 
-COPY ansible-playbook-wrapper /usr/local/bin/
-
 RUN useradd -ms /bin/bash ansible
 RUN printf "ansible ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
