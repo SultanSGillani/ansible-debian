@@ -4,7 +4,7 @@ services:
   ansible-debian:
     image: registry.gitlab.com/sultangillani/ansible-docker-debian:latest
     build:
-      context: debian
+      context: .
     stdin_open: true
     tty: true
     container_name: ansible-debian
