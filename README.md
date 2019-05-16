@@ -1,6 +1,6 @@
-[![pipeline status](https://gitlab.com/sultangillani/ansible-docker-debian/badges/master/pipeline.svg)](https://gitlab.com/sultangillani/ansible-docker-debian/commits/master)
-![MicroBadger Layers](https://img.shields.io/microbadger/layers/saltman33/ansible-debian-buster.svg?style=plastic)
-![MicroBadger Size](https://img.shields.io/microbadger/image-size/saltman33/ansible-debian-buster.svg?style=plastic)
+![Gitlab pipeline status](https://img.shields.io/gitlab/pipeline/sultangillani/ansible-docker-debian.svg?style=popout-square)
+![MicroBadger Layers](https://img.shields.io/microbadger/layers/saltman33/ansible-debian-buster.svg?style=popout-square)
+![MicroBadger Size](https://img.shields.io/microbadger/image-size/saltman33/ansible-debian-buster.svg?style=popout-square)
 
 
 # ansible-docker-debian
