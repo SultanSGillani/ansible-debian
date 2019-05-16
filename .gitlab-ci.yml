@@ -5,10 +5,12 @@ services:
 stages:
  - linting
  - build_and_push
+ - build_hub
 variables:
   DOCKER_DRIVER: overlay2
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
   LATEST_TAG: latest
+  HUB_RELEASE_IMAGE: docker.io/saltman33/ansible-debian-buster
   DEBIAN_CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE
 cache:
   paths:
@@ -36,3 +38,15 @@ build_dockerfiles:
     - echo "$CONTAINER_COMMIT_IMAGE"
     - docker build --pull -t $DEBIAN_CONTAINER_RELEASE_IMAGE .
     - docker push $DEBIAN_CONTAINER_RELEASE_IMAGE:$LATEST_TAG
+build_dockerfiles:
+  variables:
+    DOCKER_DRIVER: overlay2
+  stage: build_hub
+  cache: {}
+  before_script:
+      - docker-compose --version
+      - docker version
+      - "docker login -u $HUB_USER -p $HUB_PW"
+  script:
+    - docker build --pull -t $HUB_RELEASE_IMAGE .
+    - docker push $HUB_RELEASE_IMAGE:$LATEST_TAG
