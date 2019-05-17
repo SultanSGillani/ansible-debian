@@ -8,9 +8,9 @@ ENV pip_packages "ansible cryptography yamllint ansible-lint"
 # Install dependencies.
 WORKDIR /usr/local/bin
 
-RUN apt-get update &&  apt-get install -y --no-install-recommends \ 
+RUN apt-get update && apt-get install -y --no-install-recommends \
        gnupg2 \
-       python3-pip 
+       python3-pip \
        python3-dev \
        build-essential \
        aptitude \
@@ -47,11 +47,10 @@ RUN pip install $pip_packages
 COPY ansible-playbook-wrapper /usr/local/bin/
 
 # Install Ansible inventory file.
-RUN mkdir -p /etc/ansible
-RUN printf "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
-
-RUN useradd -ms /bin/bash ansible
-RUN printf "ansible ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN mkdir -p /etc/ansible \
+    && printf "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts \ 
+    && useradd -ms /bin/bash ansible \
+    && printf "ansible ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 RUN chown -R ansible:ansible /etc/ansible
 
