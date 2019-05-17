@@ -8,17 +8,24 @@ ENV pip_packages "ansible cryptography yamllint ansible-lint"
 # Install dependencies.
 WORKDIR /usr/local/bin
 
-RUN apt-get update  &&  apt-get install -y --no-install-recommends gnupg2 \
-       python3-pip python3-dev \
+RUN apt-get update &&  apt-get install -y --no-install-recommends \ 
+       gnupg2 \
+       python3-pip 
+       python3-dev \
        build-essential \
        aptitude \
        software-properties-common \
-       rsyslog systemd systemd-cron sudo \
+       rsyslog \
+       systemd \
+       systemd-cron \
+       sudo \
+       openssl \
+       ca-certificates \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && pip3 install --upgrade pip setuptools \
     && rm -Rf /var/lib/apt/lists/* \
-    && rm -Rf /usr/share/doc && rm -Rf /usr/share/man \
-    && apt-get clean
+    && rm -Rf /usr/share/doc && rm -Rf /usr/share/man
+
 RUN sed -i 's/^\($ModLoad imklog\)/#\1/' /etc/rsyslog.conf
 
 # Cleanup unwanted systemd files -- See https://hub.docker.com/_/centos/
@@ -37,22 +44,7 @@ RUN mkdir -p /usr/share/man/man1
 # Install Ansible via Pip.
 RUN pip install $pip_packages
 
-RUN echo "===> Removing Apt lists..."  && \
-    rm -rf /var/lib/apt/lists/*
-
 COPY ansible-playbook-wrapper /usr/local/bin/
-
-ONBUILD  RUN  DEBIAN_FRONTEND=noninteractive  apt-get update   && \
-              echo "===> Updating TLS certificates..."         && \
-              apt-get install -y --no-install-recommends openssl ca-certificates \
-              && rm -Rf /var/lib/apt/lists/* \
-              && apt-get clean
-
-ONBUILD  WORKDIR  /tmp
-ONBUILD  COPY  .  /tmp
-ONBUILD  RUN  \
-              echo "===> Diagnosis: host information..."  && \
-              ansible -c local -m setup all
 
 # Install Ansible inventory file.
 RUN mkdir -p /etc/ansible
