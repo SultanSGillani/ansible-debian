@@ -48,15 +48,10 @@ COPY ansible-playbook-wrapper /usr/local/bin/
 
 # Install Ansible inventory file.
 RUN mkdir -p /etc/ansible \
-    && printf "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts \ 
-    && useradd -ms /bin/bash ansible \
-    && printf "ansible ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-RUN chown -R ansible:ansible /etc/ansible
+    && printf "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts 
 
 WORKDIR /etc/ansible/roles/roles_to_test
 
-USER ansible
 ENV ANSIBLE_LIBRARY=${ANSIBLE_LIBRARY} \
     ANSIBLE_VERBOSITY=${ANSIBLE_VERBOSITY} \
     ANSIBLE_ROLES_PATH=${ANSIBLE_ROLES_PATH} \
@@ -70,6 +65,6 @@ ENV ANSIBLE_LIBRARY=${ANSIBLE_LIBRARY} \
     ANSIBLE_INVENTORY_ENABLED=${ANSIBLE_INVENTORY_ENABLED} \
     TTY=${TTY}
 
-VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
+VOLUME ["/sys/fs/cgroup", "/etc/ansible/roles/roles_to_test", "/run"]
 
 CMD ["bash"]
