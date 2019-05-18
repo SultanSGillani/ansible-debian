@@ -1,4 +1,4 @@
-FROM debian:buster-backports
+FROM debian:buster
 LABEL maintainer="Sultan Gillani (sultangillani)"
 
 ENV DEBIAN_FRONTEND noninteractive
