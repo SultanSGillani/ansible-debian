@@ -1,4 +1,6 @@
-FROM debian:buster
+ARG VER
+
+FROM debian:$VER
 LABEL maintainer="Sultan Gillani (sultangillani)"
 
 ENV DEBIAN_FRONTEND noninteractive

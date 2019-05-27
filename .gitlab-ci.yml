@@ -4,15 +4,23 @@ services:
  - docker:dind
 stages:
  - linting
- - build_gitlab
+ - build_and_push
  - build_hub
 variables:
   DOCKER_DRIVER: overlay2
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
   LATEST_TAG: latest
-  HUB_RELEASE_IMAGE: docker.io/saltman33/ansible-debian-buster
-  CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
-  TTY: xterm
+  STRETCH_TAG: stretch
+  BUSTER_TAG: buster
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$LATEST_TAG
+  CONTAINER_STRETCH_IMAGE: $CI_REGISTRY_IMAGE:$STRETCH_TAG
+  CONTAINER_BUSTER_IMAGE: $CI_REGISTRY_IMAGE:$BUSTER_TAG
+  HUB_TEST_IMAGE: docker.io/saltman33/ansible-debian-buster
+  HUB_NEW_IMAGE: docker.io/saltman33/ansible-debian
+  HUB_RELEASE_IMAGE: $HUB_NEW_IMAGE:$LATEST_TAG
+  HUB_STRETCH_IMAGE: $HUB_NEW_IMAGE:$STRETCH_TAG
+  HUB_BUSTER_IMAGE: $HUB_NEW_IMAGE:$BUSTER_TAG
 cache:
   paths:
     - .cache/
@@ -25,22 +33,25 @@ dockerfile_lint:
    script:
       - hadolint --config .hadolint.yaml ./Dockerfile
 build_docker_gitlab:
-  stage: build_gitlab
+  stage: build_and_push
   before_script:
       - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
   script:
-    - docker pull $CONTAINER_IMAGE:latest
-    - docker build --cache-from $CONTAINER_IMAGE:latest -t $CONTAINER_IMAGE:$CI_COMMIT_SHA -t $CONTAINER_IMAGE:$CI_BUILD_REF -t $CONTAINER_IMAGE:latest .
-    - docker push $CONTAINER_IMAGE:$CI_BUILD_REF
-    - docker push $CONTAINER_IMAGE:latest
-    - docker push $CONTAINER_IMAGE:$CI_COMMIT_SHA
+    - docker pull $CONTAINER_RELEASE_IMAGE
+    - docker build --cache-from $CONTAINER_RELEASE_IMAGE -t $CONTAINER_STRETCH_IMAGE --build-arg VER=$STRETCH_TAG .
+    - docker build --cache-from $CONTAINER_RELEASE_IMAGE -t $CONTAINER_BUSTER_IMAGE --build-arg VER=$BUSTER_TAG .
+    - docker push $CONTAINER_STRETCH_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_BUSTER_IMAGE
 build_docker_hub:
   stage: build_hub
   before_script:
       - "docker login -u $HUB_USER -p $HUB_PW"
   script:
-    - docker pull $HUB_RELEASE_IMAGE
-    - docker build --cache-from $HUB_RELEASE_IMAGE:latest -t $HUB_RELEASE_IMAGE:$CI_COMMIT_SHA -t $HUB_RELEASE_IMAGE:$CI_BUILD_REF -t $HUB_RELEASE_IMAGE:latest .
-    - docker push $HUB_RELEASE_IMAGE:$CI_BUILD_REF
-    - docker push $HUB_RELEASE_IMAGE:latest
-    - docker push $HUB_RELEASE_IMAGE:$CI_COMMIT_SHA
+    - docker pull $HUB_TEST_IMAGE
+    - docker build --cache-from $HUB_TEST_IMAGE -t $HUB_STRETCH_IMAGE --build-arg VER=$STRETCH_TAG .
+    - docker build --cache-from $HUB_TEST_IMAGE -t $HUB_BUSTER_IMAGE --build-arg VER=$BUSTER_TAG .
+    - docker build --cache-from $HUB_TEST_IMAGE -t $HUB_RELEASE_IMAGE --build-arg VER=$LATEST_TAG .
+    - docker push $HUB_RELEASE_IMAGE
+    - docker push $HUB_STRETCH_IMAGE
+    - docker push $HUB_BUSTER_IMAGE
